@@ -12,7 +12,6 @@
 - [DESCRIPTION](#description)
   - [Why?](#why)
 - [TYPES](#types)
-  - [Options](#options)
 - [EXPORTS](#exports)
   - [conjoin](#conjoin-1)
   - [conjoiner](#conjoiner)
@@ -62,8 +61,8 @@ const iterable = new Set(array)
 const pair = array.slice(0, 2)
 
 // works with iterables and arrays
-conjoin(array)      // "foo, bar, baz, quux"
-conjoin(iterable()) // "foo, bar, baz, quux"
+conjoin(array)    // "foo, bar, baz, quux"
+conjoin(iterable) // "foo, bar, baz, quux"
 
 // custom separators
 conjoin(array, { with: ' | ' })  // "foo | bar | baz | quux"
@@ -89,7 +88,7 @@ join(array) // "foo, bar, baz, and quux"
 
 This module exports a function which can be used to join array/iterable
 elements to form a string. The default and last separators can be customized,
-as well as the separator to use if there are only two elements, and options can
+as well as the separator to use if there are only two elements. Options can
 be baked into the function by currying.
 
 ## Why?
@@ -111,8 +110,6 @@ while keeping the package size small.
 # TYPES
 
 The following types are referenced in the descriptions below.
-
-## Options
 
 ```typescript
 type Options = {
@@ -140,7 +137,7 @@ join(['foo', 'bar', 'baz'])                           // "foo, bar, baz"
 join(['foo', 'bar', 'baz', 'quux'], { last: ' or ' }) // "foo, bar, baz or quux"
 ```
 
-Takes an array or iterable and joins it with the supplied separators.
+Takes an array or iterable and joins its values with the supplied separators.
 
 ## conjoiner
 
@@ -158,8 +155,8 @@ join(['foo', 'bar'])                // "foo or bar"
 join(['foo', 'bar', 'baz', 'quux']) // "foo, bar, baz or quux"
 ```
 
-Returns a function which takes an array/iterable and joins it with the supplied
-separators.
+Returns a function which takes an array/iterable and joins its values with the
+supplied separators.
 
 # OPTIONS
 
@@ -172,8 +169,8 @@ following options.
 - **Default**: value of the [`with`](#with) option
 
 ```javascript
-join(values)                   // "foo, bar, baz, quux"
-join(values, { last: ' or ' }) // "foo, bar, baz or quux"
+join(array)                   // "foo, bar, baz, quux"
+join(array, { last: ' or ' }) // "foo, bar, baz or quux"
 ```
 
 The separator to use before the final value. Only used if there are three or
@@ -194,10 +191,10 @@ join(['foo', 'bar', 'baz'])         // "foo, bar, and baz"
 join(['foo', 'bar', 'baz', 'quux']) // "foo, bar, baz, and quux"
 ```
 
-The separator to use between values when there are exactly two values.
-If not supplied, it defaults to the value of the [`last`](#option) option.
+The separator to use when there are exactly two values. If not supplied, it
+defaults to the value of the [`last`](#last) option.
 
-Can be used in conjunction with [`last`](#last) to produce lists in the
+Can be used in conjunction with `last` to produce lists in the
 "[Oxford comma](https://en.wikipedia.org/wiki/Serial_comma)" style.
 
 ## serial
@@ -211,23 +208,23 @@ join(['eats', 'shoots', 'leaves'], { serial: ' and ' }) // "eats, shoots, and le
 ```
 
 This option provides a way to create an Oxford-comma-style list with a single
-option by taking advantage of the fact that the [last](#last) separator in such
-lists is the [pair](#pair) separator with a comma prepended. Supplying a serial
+option by taking advantage of the fact that the [`last`](#last) separator in such
+lists is the [`pair`](#pair) separator with a comma prepended. Supplying a serial
 option of `<string>` is equivalent to providing a `pair` option of `<string>`
 and a `last` option of `","` + `<string>`, e.g.:
 
 #### before
 
 ```javascript
-join(pair, { pair: ' or ', last: ', or ' })   // "foo or bar"
-join(values, { pair: ' or ', last: ', or ' }) // "foo, bar, baz, or quux"
+join(pair, { pair: ' or ', last: ', or ' })  // "foo or bar"
+join(array, { pair: ' or ', last: ', or ' }) // "foo, bar, baz, or quux"
 ```
 
 #### after
 
 ```javascript
-join(pair, { serial: ' or ' })   // "foo or bar"
-join(values, { serial: ' or ' }) // "foo, bar, baz, or quux"
+join(pair, { serial: ' or ' })  // "foo or bar"
+join(array, { serial: ' or ' }) // "foo, bar, baz, or quux"
 ```
 
 ## with
@@ -242,7 +239,7 @@ join(['foo', 'bar', 'baz'], { with: ' | ' }) // "foo | bar | baz"
 ```
 
 The default separator. Used as the last separator as well unless overridden by
-the [last](#last) or [`pair`](#pair) options.
+the [`last`](#last) or [`pair`](#pair) options.
 
 # DEVELOPMENT
 
@@ -280,6 +277,8 @@ The following NPM scripts are available:
 # SEE ALSO
 
 - [array-to-sentence](https://www.npmjs.com/package/array-to-sentence)
+- [join-array](https://www.npmjs.com/package/join-array)
+- [joinn](https://www.npmjs.com/package/joinn)
 - [oxford-comma-join](https://www.npmjs.com/package/oxford-comma-join)
 - [oxford-join](https://www.npmjs.com/package/oxford-join)
 
