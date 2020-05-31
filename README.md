@@ -1,7 +1,7 @@
 # conjoin
 
 [![Build Status](https://travis-ci.org/chocolateboy/conjoin.svg)](https://travis-ci.org/chocolateboy/conjoin)
-[![NPM Version](https://img.shields.io/npm/v/@chocolateboy/conjoin.svg)](https://www.npmjs.org/package/@chocolateboy/conjoin)
+[![NPM Version](https://img.shields.io/npm/v/@chocolatey/conjoin.svg)](https://www.npmjs.org/package/@chocolatey/conjoin)
 
 <!-- toc -->
 
@@ -14,7 +14,7 @@
 - [TYPES](#types)
   - [Options](#options)
 - [EXPORTS](#exports)
-  - [conjoin](#conjoin)
+  - [conjoin](#conjoin-1)
   - [conjoiner](#conjoiner)
 - [OPTIONS](#options)
   - [last](#last)
@@ -57,8 +57,8 @@ $ npm install @chocolatey/conjoin
 ```javascript
 import { conjoin, conjoiner } from '@chocolatey/conjoin'
 
-const iterable = new Set(['foo', 'bar', 'baz', 'quux'])
-const array = Array.from(iterable)
+const array = ['foo', 'bar', 'baz', 'quux']
+const iterable = new Set(array)
 const pair = array.slice(0, 2)
 
 // works with iterables and arrays
@@ -74,7 +74,7 @@ const join = conjoiner({ last: ' or ' })
 join(array) // "foo, bar, baz or quux"
 join(pair)  // "foo or bar"
 
-// oxford comma
+// serial comma
 const join = conjoiner({ pair: ' and ', last: ', and ' })
 join(pair)  // "foo and bar"
 join(array) // "foo, bar, baz, and quux"
@@ -144,7 +144,7 @@ Takes an array or iterable and joins it with the supplied separators.
 
 ## conjoiner
 
-- **Type**: `conjoiner(options: Options): <T>(iterable: Iterable<T>) => string`
+- **Type**: `conjoiner(options: Options): <T>(iterable: Iterable<T>) ⇒ string`
 - **Alias**: `joiner`
 
 ```javascript
@@ -163,7 +163,7 @@ separators.
 
 # OPTIONS
 
-The [`conjoin`](#conjoin) and [`conjoiner`](#conjoiner) functions take the
+The [`conjoin`](#conjoin-1) and [`conjoiner`](#conjoiner) functions take the
 following options.
 
 ## last
@@ -289,7 +289,7 @@ The following NPM scripts are available:
 
 # AUTHOR
 
-[chocolateboy](mailto:chocolate@cpan.org)
+[chocolateboy](https://github.com/chocolateboy)
 
 # COPYRIGHT AND LICENSE
 

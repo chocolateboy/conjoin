@@ -41,11 +41,11 @@
         "npm-run-all": "^4.1.5",
         "rollup-plugin-typescript2": "^0.27.1",
         "shx": "^0.3.2",
-        "typescript": "^3.9.3",
-        "yarn": "^1.22.4"
+        "typescript": "^3.9.3"
     },
     "keywords": [
         "array",
+        "array-join",
         "conjoin",
         "curried",
         "iterable",
@@ -55,6 +55,7 @@
         "oxford-comma",
         "sentence",
         "separator",
-        "separators"
+        "separators",
+        "serial-comma"
     ]
 }
