@@ -1,0 +1,60 @@
+{
+    "name": "@chocolatey/conjoin",
+    "version": "0.0.1",
+    "description": "A fast and flexible joiner for iterables and arrays with a tiny footprint",
+    "main": "dist/index.js",
+    "module": "dist/index.esm.js",
+    "unpkg": "dist/index.umd.min.js",
+    "jsdelivr": "dist/index.umd.min.js",
+    "types": "dist/index.d.ts",
+    "repository": "https://github.com/chocolateboy/conjoin",
+    "author": "chocolateboy",
+    "license": "Artistic-2.0",
+    "scripts": {
+        "build": "bili --map --format cjs -d dist src/index.ts",
+        "build:compat": "cross-env NODE_ENV=production BABEL_ENV=compat bili --config minify.config.js --no-map --module-name Conjoin --format umd-min -d dist src/index.ts",
+        "build:min": "cross-env NODE_ENV=production bili --config minify.config.js --no-map --format cjs-min,esm-min -d dist src/index.ts",
+        "build:modern": "cross-env NODE_ENV=production bili --no-map --format cjs,esm -d dist src/index.ts",
+        "build:release": "run-s build:modern build:compat",
+        "clean": "shx rm -rf dist",
+        "doctoc": "markdown-toc --bullets=- --maxdepth 3 -i README.md",
+        "prepublishOnly": "run-s clean build:release test:run",
+        "rebuild": "run-s clean build",
+        "test": "run-s typecheck build test:run",
+        "test:run": "ava --verbose ./test.js",
+        "typecheck": "tsc --noEmit --noImplicitAny --noUnusedLocals --noUnusedParameters --strict"
+    },
+    "files": [
+        "dist/index.js",
+        "dist/index.esm.js",
+        "dist/index.umd.min.js",
+        "dist/index.d.ts"
+    ],
+    "browserslist": "maintained node versions",
+    "devDependencies": {
+        "@babel/core": "^7.10.2",
+        "ava": "^3.8.2",
+        "babel-plugin-source-map-support": "^2.1.1",
+        "bili": "^4.10.0",
+        "cross-env": "^7.0.2",
+        "markdown-toc": "^1.2.0",
+        "npm-run-all": "^4.1.5",
+        "rollup-plugin-typescript2": "^0.27.1",
+        "shx": "^0.3.2",
+        "typescript": "^3.9.3",
+        "yarn": "^1.22.4"
+    },
+    "keywords": [
+        "array",
+        "conjoin",
+        "curried",
+        "iterable",
+        "join",
+        "joiner",
+        "list",
+        "oxford-comma",
+        "sentence",
+        "separator",
+        "separators"
+    ]
+}
