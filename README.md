@@ -74,7 +74,8 @@ join(array) // "foo, bar, baz or quux"
 join(pair)  // "foo or bar"
 
 // transform values
-const join = conjoiner({ map: JSON.stringify, last: ' or ' })
+const map = it => JSON.stringify(it)
+const join = conjoiner({ map, last: ' or ' })
 join(array) // '"foo", "bar", "baz" or "quux"'
 
 // serial comma
