@@ -17,11 +17,11 @@
   - [conjoiner](#conjoiner)
 - [OPTIONS](#options)
   - [last](#last)
+  - [map](#map)
   - [pair](#pair)
   - [serial](#serial)
   - [with](#with)
 - [DEVELOPMENT](#development)
-  - [NPM Scripts](#npm-scripts)
 - [COMPATIBILITY](#compatibility)
   - [Compat](#compat)
   - [Modern](#modern)
@@ -34,14 +34,14 @@
 
 # NAME
 
-conjoin - a fast and flexible joiner for iterables and arrays with a tiny footprint
+conjoin - a fast and flexible joiner for iterables and arrays with a small footprint
 
 # FEATURES
 
 - works with ES6+ iterables and plain arrays
 - custom default, pair, and last separators
 - currying (generate a function with baked-in options)
-- &lt; 600 B minified
+- &lt; 700 B minified
 - no dependencies
 - fully typed (TypeScript)
 
@@ -72,6 +72,10 @@ conjoin(array, { last: ' or ' }) // "foo, bar, baz or quux"
 const join = conjoiner({ last: ' or ' })
 join(array) // "foo, bar, baz or quux"
 join(pair)  // "foo or bar"
+
+// transform values
+const join = conjoiner({ map: JSON.stringify, last: ' or ' })
+join(array) // '"foo", "bar", "baz" or "quux"'
 
 // serial comma
 const join = conjoiner({ pair: ' and ', last: ', and ' })
@@ -112,8 +116,9 @@ while keeping the package size small.
 The following types are referenced in the descriptions below.
 
 ```typescript
-type Options = {
+type Options<T> = {
     last?: string;
+    map?: (value: T, index: number) => any;
     pair?: string;
     serial?: string;
     with?: string;
@@ -124,7 +129,7 @@ type Options = {
 
 ## conjoin
 
-- **Type**: `conjoin<T>(Iterable<T>, options?: Options) ⇒ string`
+- **Type**: `conjoin<T>(Iterable<T>, options?: Options<T>) ⇒ string`
 - **Alias**: `join`
 
 ```javascript
@@ -141,7 +146,7 @@ Takes an array or iterable and joins its values with the supplied separators.
 
 ## conjoiner
 
-- **Type**: `conjoiner(options: Options): <T>(iterable: Iterable<T>) ⇒ string`
+- **Type**: `conjoiner(options: Options<T>): <T>(iterable: Iterable<T>) ⇒ string`
 - **Alias**: `joiner`
 
 ```javascript
@@ -176,6 +181,21 @@ join(array, { last: ' or ' }) // "foo, bar, baz or quux"
 The separator to use before the final value. Only used if there are three or
 more values. If not supplied, it defaults to the value of the [`with`](#with)
 option.
+
+## map
+
+- **Type**: `(value: T, index: number) ⇒ any`
+- **Default**: undefined
+
+```javascript
+const toUpper = value => value.toUpperCase()
+
+join(array, { map: toUpper })        // "FOO, BAR, BAZ, QUUX"
+join(array, { map: JSON.stringify }) // '"foo", "bar", "baz", "quux"'
+```
+
+A function to transform each joined value. If defined, the function is passed
+the value and its 0-based index within the array/iterable.
 
 ## pair
 

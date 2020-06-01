@@ -147,3 +147,27 @@ test('type', t => {
     t.isJoined(array, '1, 2, 3, 4')
     t.isJoined(array, { with: 42 }, '1422423424')
 })
+
+test('map', t => {
+    const indexOf = { foo: 0, bar: 1, baz: 2 }
+
+    let map = (value, index) => {
+        t.is(index, indexOf[value])
+        return value.toUpperCase()
+    }
+
+    t.isJoined([], { map }, '')
+    t.isJoined(['foo'], { map }, 'FOO')
+    t.isJoined(['foo', 'bar'], { map }, 'FOO, BAR')
+    t.isJoined(['foo', 'bar', 'baz'], { map }, 'FOO, BAR, BAZ')
+
+    map = (value, index) => {
+        t.is(index, indexOf[value])
+        return JSON.stringify(value)
+    }
+
+    t.isJoined([], { map }, '')
+    t.isJoined(['foo'], { map }, '"foo"')
+    t.isJoined(['foo', 'bar'], { map }, '"foo", "bar"')
+    t.isJoined(['foo', 'bar', 'baz'], { map }, '"foo", "bar", "baz"')
+})

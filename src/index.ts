@@ -1,25 +1,22 @@
-type Options = {
+export type Options<T> = {
     last?: string;
+    map?: Mapper<T>;
     pair?: string;
     serial?: string;
     with?: string;
 };
 
+export type Mapper<T> = (value: T, index: number) => any;
+
+const { isArray, from: arrayFrom } = Array
+
 function _conjoin<T> (
-    iterable: Iterable<T>,
+    array: Array<T>,
     sep: string,
     pairSep: string,
-    lastSep: string
+    lastSep: string,
+    mutable: boolean,
 ): string {
-    let array: Array<T>, mutable, last
-
-    if (Array.isArray(iterable)) {
-        array = iterable
-    } else {
-        array = Array.from(iterable)
-        mutable = true
-    }
-
     const length = array.length
 
     switch (length) {
@@ -36,7 +33,7 @@ function _conjoin<T> (
 
         default:
             if (mutable) {
-                last = array.pop()
+                const last = array.pop()
                 return array.join(sep) + lastSep + last
             } else {
                 return array.slice(0, -1).join(sep) + lastSep + array[length - 1]
@@ -46,26 +43,61 @@ function _conjoin<T> (
 
 export function conjoin<T> (
     iterable: Iterable<T>,
-    { with: sep = ', ', last = sep, pair = last, serial }: Options = {}
-) {
+    {
+        with: sep = ', ',
+        last = sep,
+        pair = last,
+        serial,
+        map
+    }: Options<T> = {}
+): string {
     if (serial != null) {
-        [pair, last] = [serial, ',' + serial]
+        pair = serial
+        last = ',' + serial
     }
 
-    return _conjoin(iterable, sep, '' + pair, last)
+    let array, mutable = true
+
+    if (map) {
+        array = arrayFrom(iterable, map)
+    } else if (isArray(iterable)) {
+        array = iterable
+        mutable = false
+    } else {
+        array = arrayFrom(iterable)
+    }
+
+    return _conjoin(array, sep, '' + pair, last, mutable)
 }
 
-export function conjoiner (
-    { with: sep = ', ', last = sep, pair = last, serial }: Options = {}
+export function conjoiner<T> (
+    {
+        with: sep = ', ',
+        last = sep,
+        pair = last,
+        serial,
+        map
+    }: Options<T> = {}
 ) {
     if (serial != null) {
-        [pair, last] = [serial, ',' + serial]
+        pair = serial
+        last = ',' + serial
     }
 
     pair = '' + pair
 
-    return function conjoin<T> (iterable: Iterable<T>) {
-        return _conjoin(iterable, sep, pair, last)
+    if (map) {
+        return function conjoin (iterable: Iterable<T>) {
+            return _conjoin(arrayFrom(iterable, map), sep, pair, last, true)
+        }
+    }
+
+    return function conjoin (iterable: Iterable<T>) {
+        const [array, mutable] = isArray(iterable)
+            ? [iterable, false]
+            : [arrayFrom(iterable), true]
+
+        return _conjoin(array, sep, pair, last, mutable)
     }
 }
 

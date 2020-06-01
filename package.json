@@ -1,7 +1,7 @@
 {
     "name": "@chocolatey/conjoin",
     "version": "0.0.1",
-    "description": "A fast and flexible joiner for iterables and arrays with a tiny footprint",
+    "description": "A fast and flexible joiner for iterables and arrays with a small footprint",
     "main": "dist/index.js",
     "module": "dist/index.esm.js",
     "unpkg": "dist/index.umd.min.js",
@@ -13,7 +13,7 @@
     "scripts": {
         "build": "bili --map --format cjs -d dist src/index.ts",
         "build:compat": "cross-env NODE_ENV=production BABEL_ENV=compat bili --config minify.config.js --no-map --module-name Conjoin --format umd-min -d dist src/index.ts",
-        "build:min": "cross-env NODE_ENV=production bili --config minify.config.js --no-map --format cjs-min,esm-min -d dist src/index.ts",
+        "build:min": "cross-env NODE_ENV=production bili --no-map --format cjs-min,esm-min -d dist src/index.ts",
         "build:modern": "cross-env NODE_ENV=production bili --no-map --format cjs,esm -d dist src/index.ts",
         "build:release": "run-s build:modern build:compat",
         "clean": "shx rm -rf dist",
