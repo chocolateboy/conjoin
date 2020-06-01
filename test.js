@@ -149,25 +149,31 @@ test('type', t => {
 })
 
 test('map', t => {
-    const indexOf = { foo: 0, bar: 1, baz: 2 }
-
     let map = (value, index) => {
-        t.is(index, indexOf[value])
+        t.is(index, ARRAY.indexOf(value))
         return value.toUpperCase()
     }
 
-    t.isJoined([], { map }, '')
-    t.isJoined(['foo'], { map }, 'FOO')
-    t.isJoined(['foo', 'bar'], { map }, 'FOO, BAR')
-    t.isJoined(['foo', 'bar', 'baz'], { map }, 'FOO, BAR, BAZ')
+    let options = { map }
+
+    t.isJoined([], options, '')
+    t.isJoined(['foo'], options, 'FOO')
+    t.isJoined(['foo', 'bar'], options, 'FOO, BAR')
+    t.isJoined(['foo', 'bar', 'baz'], options, 'FOO, BAR, BAZ')
+    t.isJoined(options, 'FOO, BAR, BAZ, QUUX')
 
     map = (value, index) => {
-        t.is(index, indexOf[value])
+        t.is(index, ARRAY.indexOf(value))
         return JSON.stringify(value)
     }
 
-    t.isJoined([], { map }, '')
-    t.isJoined(['foo'], { map }, '"foo"')
-    t.isJoined(['foo', 'bar'], { map }, '"foo", "bar"')
-    t.isJoined(['foo', 'bar', 'baz'], { map }, '"foo", "bar", "baz"')
+    // confirm the example in the README works
+
+    options = { map, last: ' or ' }
+
+    t.isJoined([], options, '')
+    t.isJoined(['foo'], options, '"foo"')
+    t.isJoined(['foo', 'bar'], options, '"foo" or "bar"')
+    t.isJoined(['foo', 'bar', 'baz'], options, '"foo", "bar" or "baz"')
+    t.isJoined(options, '"foo", "bar", "baz" or "quux"')
 })
