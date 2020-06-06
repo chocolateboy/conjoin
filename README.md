@@ -190,9 +190,10 @@ option.
 
 ```javascript
 const toUpper = value => value.toUpperCase()
+const stringify = it => JSON.stringify(it)
 
-join(array, { map: toUpper })        // "FOO, BAR, BAZ, QUUX"
-join(array, { map: JSON.stringify }) // '"foo", "bar", "baz", "quux"'
+join(array, { map: toUpper })   // "FOO, BAR, BAZ, QUUX"
+join(array, { map: stringify }) // '"foo", "bar", "baz", "quux"'
 ```
 
 A function to transform each joined value. If defined, the function is passed
@@ -230,7 +231,7 @@ join(['eats', 'shoots', 'leaves'], { serial: ' and ' }) // "eats, shoots, and le
 
 This option provides a way to create an Oxford-comma-style list with a single
 option by taking advantage of the fact that the [`last`](#last) separator in such
-lists is the [`pair`](#pair) separator with a comma prepended. Supplying a serial
+lists is the [`pair`](#pair) separator with a comma prepended. Supplying a `serial`
 option of `<string>` is equivalent to providing a `pair` option of `<string>`
 and a `last` option of `","` + `<string>`, e.g.:
 
@@ -305,7 +306,7 @@ The following NPM scripts are available:
 
 # VERSION
 
-0.1.0
+0.1.1
 
 # AUTHOR
 
