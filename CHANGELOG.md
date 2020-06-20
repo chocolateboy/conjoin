@@ -1,3 +1,7 @@
+**1.0.0** - 2020-06-20
+
+- add missing license
+
 **0.1.1** - 2020-06-06
 
 - documentation fix
