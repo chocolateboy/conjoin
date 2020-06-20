@@ -3,7 +3,7 @@
     "version": "1.0.0",
     "description": "A fast and flexible joiner for iterables and arrays with a small footprint",
     "main": "dist/index.js",
-    "module": "dist/index.esm.js",
+    "module": "dist/index.es.js",
     "unpkg": "dist/index.umd.min.js",
     "jsdelivr": "dist/index.umd.min.js",
     "types": "dist/index.d.ts",
@@ -25,10 +25,10 @@
         "typecheck": "tsc --noEmit --noImplicitAny --noUnusedLocals --noUnusedParameters --strict"
     },
     "files": [
+        "dist/index.d.ts",
+        "dist/index.es.js",
         "dist/index.js",
-        "dist/index.esm.js",
-        "dist/index.umd.min.js",
-        "dist/index.d.ts"
+        "dist/index.umd.min.js"
     ],
     "browserslist": "maintained node versions",
     "devDependencies": {

@@ -1,3 +1,7 @@
+**1.0.1** - TBD
+
+- restore missing ESM bundle
+
 **1.0.0** - 2020-06-20
 
 - add missing license
