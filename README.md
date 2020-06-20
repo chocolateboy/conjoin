@@ -130,7 +130,7 @@ type Options<T> = {
 
 ## conjoin
 
-- **Type**: `conjoin<T>(Iterable<T>, options?: Options<T>) ⇒ string`
+- **Type**: `<T>(Iterable<T>, options?: Options<T>) ⇒ string`
 - **Alias**: `join`
 
 ```javascript
@@ -147,7 +147,7 @@ Takes an array or iterable and joins its values with the supplied separators.
 
 ## conjoiner
 
-- **Type**: `conjoiner(options: Options<T>): <T>(iterable: Iterable<T>) ⇒ string`
+- **Type**: `(options: Options<T>) ⇒ <T>(iterable: Iterable<T>) ⇒ string`
 - **Alias**: `joiner`
 
 ```javascript
@@ -196,12 +196,12 @@ join(array, { map: toUpper })   // "FOO, BAR, BAZ, QUUX"
 join(array, { map: stringify }) // '"foo", "bar", "baz", "quux"'
 ```
 
-A function to transform each joined value. If defined, the function is passed
+A function to transform each joined value. If supplied, the function is passed
 the value and its 0-based index within the array/iterable.
 
 ## pair
 
-- **Type**: `string | undefined`
+- **Type**: `string`
 - **Default**: value of the [`last`](#last) option
 
 ```javascript
@@ -221,7 +221,7 @@ Can be used in conjunction with `last` to produce lists in the
 
 ## serial
 
-- **Type**: `string | undefined`
+- **Type**: `string`
 - **Default**: `undefined`
 
 ```javascript
