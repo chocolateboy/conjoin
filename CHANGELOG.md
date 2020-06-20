@@ -1,4 +1,4 @@
-**1.0.1** - TBD
+**1.0.1** - 2020-06-21
 
 - restore missing ESM bundle
 
