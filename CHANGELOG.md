@@ -1,3 +1,7 @@
+**1.0.2** - 2020-06-23
+
+- restore standard ESM bundle name
+
 **1.0.1** - 2020-06-21
 
 - restore missing ESM bundle

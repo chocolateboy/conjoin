@@ -1,6 +1,6 @@
 {
     "name": "@chocolatey/conjoin",
-    "version": "1.0.1",
+    "version": "1.0.2",
     "description": "A fast and flexible joiner for iterables and arrays with a small footprint",
     "main": "dist/index.js",
     "module": "dist/index.es.js",
