@@ -292,7 +292,7 @@ The following NPM scripts are available:
 
 ## Modern
 
-`index.js` and `index.es.js`:
+`index.js` and `index.esm.js`:
 
 - [Maintained Node.js versions](https://github.com/nodejs/Release#readme) and compatible browsers
 
