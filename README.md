@@ -98,8 +98,8 @@ be baked into the function by currying.
 
 ## Why?
 
-I often need to glue a list of values together with a separator, e.g. for error
-messages:
+I often need to glue a list of values together with a default separator and a
+different separator for the last two values, e.g. for error messages:
 
 ```javascript
 const want = ['string', 'symbol', 'function']
