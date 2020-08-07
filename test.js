@@ -34,7 +34,7 @@ function isJoined (...args) {
     }
 }
 
-// XXX workaround until Ava supports custom assertions
+// XXX workaround until AVA supports custom assertions
 // https://github.com/avajs/ava/issues/1094#issuecomment-502420286
 Object.assign(Assertions.prototype, { isJoined })
 
