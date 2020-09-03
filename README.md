@@ -23,8 +23,6 @@
   - [with](#with)
 - [DEVELOPMENT](#development)
 - [COMPATIBILITY](#compatibility)
-  - [Compat](#compat)
-  - [Modern](#modern)
 - [SEE ALSO](#see-also)
 - [VERSION](#version)
 - [AUTHOR](#author)
@@ -34,16 +32,17 @@
 
 # NAME
 
-conjoin - a fast and flexible joiner for iterables and arrays with a small footprint
+conjoin - a fast and flexible joiner for iterables and arrays with a tiny footprint
 
 # FEATURES
 
-- works with ES6+ iterables and plain arrays
+- works with ES6+ iterables, plain arrays and array-likes
 - custom default, pair, and last separators
 - currying (generate a function with baked-in options)
-- &lt; 700 B minified
 - no dependencies
+- ~350 B minified + gzipped
 - fully typed (TypeScript)
+- CDN builds (UMD) - [jsDelivr][], [unpkg][]
 
 # INSTALLATION
 
@@ -58,35 +57,54 @@ import { conjoin, conjoiner } from '@chocolatey/conjoin'
 
 const array = ['foo', 'bar', 'baz', 'quux']
 const iterable = new Set(array)
+const single = array.slice(0, 1)
 const pair = array.slice(0, 2)
+const triple = array.slice(0, 3)
+```
 
-// works with iterables and arrays
-conjoin(array)    // "foo, bar, baz, quux"
-conjoin(iterable) // "foo, bar, baz, quux"
+#### works with iterables, arrays, and array-likes
 
-// custom separators
-conjoin(array, { with: ' | ' })  // "foo | bar | baz | quux"
+```javascript
+const arrayLike = { length: 4, ...array }
+
+conjoin([])        // ""
+conjoin(single)    // "foo"
+conjoin(pair)      // "foo and bar"
+conjoin(triple)    // "foo, bar and baz"
+conjoin(array)     // "foo, bar, baz and quux"
+conjoin(iterable)  // "foo, bar, baz and quux"
+conjoin(arrayLike) // "foo, bar, baz and quux"
+```
+
+#### custom separators
+
+```javascript
+conjoin(array, { with: '; ' })   // "foo; bar; baz and quux"
 conjoin(array, { last: ' or ' }) // "foo, bar, baz or quux"
+conjoin(pair, { pair: '/' })     // "foo/bar"
+```
 
-// currying
-const join = conjoiner({ last: ' or ' })
-join(array) // "foo, bar, baz or quux"
+#### transform values
+
+```javascript
+const map = (it, i) => `${it}(${i + 1})`
+join(array, { map }) // 'foo(1), bar(2), baz(3) and quux(4)"
+```
+
+#### currying
+
+```javascript
+const join = conjoiner({ map: it.toUpperCase() })
+join(array)                    // "FOO, BAR, BAZ and QUUX"
+join(array, { last: ' AND ' }) // "FOO, BAR, BAZ AND QUUX"
+```
+
+#### serial comma
+
+```javascript
+const join = conjoiner({ serial: ' or ' })
 join(pair)  // "foo or bar"
-
-// transform values
-const map = it => JSON.stringify(it)
-const join = conjoiner({ map, last: ' or ' })
-join(array) // '"foo", "bar", "baz" or "quux"'
-
-// serial comma
-const join = conjoiner({ pair: ' and ', last: ', and ' })
-join(pair)  // "foo and bar"
-join(array) // "foo, bar, baz, and quux"
-
-// shorthand
-const join = conjoiner({ serial: ' and ' })
-join(pair)  // "foo and bar"
-join(array) // "foo, bar, baz, and quux"
+join(array) // "foo, bar, baz, or quux"
 ```
 
 # DESCRIPTION
@@ -103,7 +121,7 @@ different separator for the last two values, e.g. for error messages:
 
 ```javascript
 const want = ['string', 'symbol', 'function']
-const message = 'Invalid name: expected string, symbol or function.'
+const message = 'Invalid name: expected string, symbol or function'
 ```
 
 Several libraries which support this are available on NPM, but most haven't
@@ -117,11 +135,13 @@ while keeping the package size small.
 The following types are referenced in the descriptions below.
 
 ```typescript
-type Options<T> = {
+type Joinable = ArrayLike<any> | Iterable<any>;
+
+type Options = {
     last?: string;
-    map?: (value: T, index: number) => any;
+    map?: ((value: any, index: number) => any) | boolean;
     pair?: string;
-    serial?: string;
+    serial?: string | boolean;
     with?: string;
 };
 ```
@@ -130,24 +150,23 @@ type Options<T> = {
 
 ## conjoin
 
-- **Type**: `<T>(Iterable<T>, options?: Options<T>) ⇒ string`
+- **Type**: `(values: Joinable, options?: Options) ⇒ string`
 - **Alias**: `join`
 
 ```javascript
 import { join } from '@chocolatey/conjoin'
 
-join([])                                              // ""
-join(['foo'])                                         // "foo"
-join(['foo', 'bar'])                                  // "foo, bar"
-join(['foo', 'bar', 'baz'])                           // "foo, bar, baz"
-join(['foo', 'bar', 'baz', 'quux'], { last: ' or ' }) // "foo, bar, baz or quux"
+join(single)                  // "foo"
+join(pair)                    // "foo and bar"
+join(array, { last: ' or ' }) // "foo, bar, baz or quux"
 ```
 
-Takes an array or iterable and joins its values with the supplied separators.
+Takes an array-like or iterable and joins its values with the supplied
+separators.
 
 ## conjoiner
 
-- **Type**: `(options: Options<T>) ⇒ <T>(iterable: Iterable<T>) ⇒ string`
+- **Type**: `(options?: Options) ⇒ ((values: Joinable, extend?: Options) ⇒ string)`
 - **Alias**: `joiner`
 
 ```javascript
@@ -155,14 +174,15 @@ import { joiner } from '@chocolatey/conjoin'
 
 const join = joiner({ last: ' or ' })
 
-join([])                            // ""
-join(['foo'])                       // "foo"
-join(['foo', 'bar'])                // "foo or bar"
-join(['foo', 'bar', 'baz', 'quux']) // "foo, bar, baz or quux"
+join(pair)                  // "foo or bar"
+join(triple)                // "foo, bar or baz"
+join(array, { with: '/' })  // "foo/bar/baz or quux"
+join(array, { last: ': ' }) // "foo, bar, baz: quux"
 ```
 
 Returns a function which takes an array/iterable and joins its values with the
-supplied separators.
+supplied separators. Options passed to the generated function override the
+options passed to the generator.
 
 # OPTIONS
 
@@ -172,32 +192,41 @@ following options.
 ## last
 
 - **Type**: `string`
-- **Default**: value of the [`with`](#with) option
+- **Default**: `" and "`
 
 ```javascript
-join(array)                   // "foo, bar, baz, quux"
+join(array)                   // "foo, bar, baz and quux"
 join(array, { last: ' or ' }) // "foo, bar, baz or quux"
 ```
 
-The separator to use before the final value. Only used if there are three or
-more values. If not supplied, it defaults to the value of the [`with`](#with)
-option.
+The separator to use between the last two values. Used if there are three or
+more values, or if there are two values and no [`pair`](#pair) separator is
+defined.
 
 ## map
 
-- **Type**: `(value: T, index: number) ⇒ any`
+- **Type**: `((value: any, index: number) ⇒ any) | boolean`
 - **Default**: undefined
 
 ```javascript
-const toUpper = value => value.toUpperCase()
+const map = (it, i) => String(it).repeat(i + 1)
 const stringify = it => JSON.stringify(it)
 
-join(array, { map: toUpper })   // "FOO, BAR, BAZ, QUUX"
-join(array, { map: stringify }) // '"foo", "bar", "baz", "quux"'
+join([1, 2, 3, 4], { map })     // "1, 22, 333 and 4444"
+join(array, { map: stringify }) // '"foo", "bar", "baz" and "quux"'
 ```
 
-A function to transform each joined value. If supplied, the function is passed
-the value and its 0-based index within the array/iterable.
+An optional function to transform each joined value. If supplied, the function
+is passed the value and its 0-based index within the array/iterable.
+
+Note that `JSON.stringify` needs to be wrapped to prevent the second argument
+to the map function (the index) being interpreted as a replacer. As a
+convenience, if the map value is `true`, this wrapper is used as the function,
+e.g.:
+
+```javascript
+join(array, { map: true }) // '"foo", "bar", "baz" and "quux"'
+```
 
 ## pair
 
@@ -205,12 +234,12 @@ the value and its 0-based index within the array/iterable.
 - **Default**: value of the [`last`](#last) option
 
 ```javascript
-const join = conjoiner({ pair: ' and ', last: ', and ' })
+const join = conjoiner({ pair: ' or ', last: ', or ' })
 
-join(['foo'])                       // "foo"
-join(['foo', 'bar'])                // "foo and bar"
-join(['foo', 'bar', 'baz'])         // "foo, bar, and baz"
-join(['foo', 'bar', 'baz', 'quux']) // "foo, bar, baz, and quux"
+join(single) // "foo"
+join(pair)   // "foo or bar"
+join(triple) // "foo, bar, or baz"
+join(array)  // "foo, bar, baz, or quux"
 ```
 
 The separator to use when there are exactly two values. If not supplied, it
@@ -221,7 +250,7 @@ Can be used in conjunction with `last` to produce lists in the
 
 ## serial
 
-- **Type**: `string`
+- **Type**: `string | boolean`
 - **Default**: `undefined`
 
 ```javascript
@@ -238,15 +267,30 @@ and a `last` option of `","` + `<string>`, e.g.:
 #### before
 
 ```javascript
-join(pair, { pair: ' or ', last: ', or ' })  // "foo or bar"
-join(array, { pair: ' or ', last: ', or ' }) // "foo, bar, baz, or quux"
+const join = joiner({ pair: ' or ', last: ', or ' })
+join(pair)  // "foo or bar"
+join(array) // "foo, bar, baz, or quux"
 ```
 
 #### after
 
 ```javascript
-join(pair, { serial: ' or ' })  // "foo or bar"
-join(array, { serial: ' or ' }) // "foo, bar, baz, or quux"
+const join = joiner({ serial: ' or ' })
+join(pair)  // "foo or bar"
+join(array) // "foo, bar, baz, or quux"
+```
+
+As a convenience, if the value is true, it's assigned the value of the
+[`last`](#last) option, e.g.:
+
+```javascript
+const array = ['eats', 'shoots', 'leaves']
+conjoin(array)                   // "eats, shoots and leaves"
+conjoin(array, { serial: true }) // "eats, shoots, and leaves"
+
+const join = joiner({ last: ' or ' })
+join(array)                      // "eats, shoots or leaves"
+join(array, { serial: true })    // "eats, shoots, or leaves"
 ```
 
 ## with
@@ -255,13 +299,13 @@ join(array, { serial: ' or ' }) // "foo, bar, baz, or quux"
 - **Default**: `", "`
 
 ```javascript
-join(['foo', 'bar'], { with: '' })           // "foobar"
-join(['foo', 'bar'], { with: ',' })          // "foo,bar"
-join(['foo', 'bar', 'baz'], { with: ' | ' }) // "foo | bar | baz"
+join(pair, { with: '/' })       // "foo/bar"
+join(triple, { with: '/' })     // "foo/bar and baz"
+join(triple, { with: ' and ' }) // "foo and bar and baz"
 ```
 
-The default separator. Used as the last separator as well unless overridden by
-the [`last`](#last) or [`pair`](#pair) options.
+The default separator, used for all but the only ([pair](#pair)) and
+[last](#last) separators.
 
 # DEVELOPMENT
 
@@ -283,16 +327,6 @@ The following NPM scripts are available:
 </details>
 
 # COMPATIBILITY
-
-## Compat
-
-`index.umd.min.js`:
-
-- any [environment][browserslist] with ([full][string-iterator]) support for [`Array.from`][array-from]
-
-## Modern
-
-`index.js` and `index.esm.js`:
 
 - [Maintained Node.js versions](https://github.com/nodejs/Release#readme) and compatible browsers
 
@@ -319,6 +353,5 @@ Copyright © 2020 by chocolateboy.
 This is free software; you can redistribute it and/or modify it under the
 terms of the [Artistic License 2.0](https://www.opensource.org/licenses/artistic-license-2.0.php).
 
-[string-iterator]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/@@iterator
-[array-from]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/from
-[browserslist]: https://browserl.ist/?q=chrome+%3E%3D+51%2C+edge+%3E%3D+15%2C+electron+%3E%3D+1.2%2C+firefox+%3E%3D+36%2C+ios+%3E%3D+10%2C+node+%3E%3D+6.5%2C+opera+%3E%3D+38%2C+safari+%3E%3D+10%2C+samsung+%3E%3D+5
+[jsDelivr]: https://cdn.jsdelivr.net/npm/@chocolatey/conjoin@1.0.2/dist/index.umd.min.js
+[unpkg]: https://unpkg.com/@chocolatey/conjoin@1.0.2/dist/index.umd.min.js

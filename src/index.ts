@@ -1,23 +1,48 @@
-export type Options<T> = {
+export type Joinable = ArrayLike<any> | Iterable<any>;
+export type Mapper = (value: any, index: number) => any;
+
+export type Options = {
     last?: string;
-    map?: Mapper<T>;
+    map?: Mapper | boolean;
     pair?: string;
-    serial?: string;
+    serial?: string | boolean;
     with?: string;
 };
 
-export type Mapper<T> = (value: T, index: number) => any;
+const $Array = Array
+const safeJsonStringify = (value: any) => JSON.stringify(value)
 
-const { isArray, from: arrayFrom } = Array
+const $conjoin = function conjoin (values: Joinable, options: Options = {}) {
+    let {
+        with: sep = ', ',
+        last = ' and ',
+        pair = last,
+        map: $map,
+        serial = false,
+    } = options
 
-function _conjoin<T> (
-    array: Array<T>,
-    sep: string,
-    pairSep: string,
-    lastSep: string,
-    mutable: boolean,
-): string {
+    let $last, mutable
+
+    const map: Mapper | undefined = $map
+        ? ($map === true ? safeJsonStringify : $map)
+        : undefined
+
+    // XXX TypeScript doesn't grok that Array.from's second argument can be
+    // undefined
+    const array: Array<any> = (mutable = (map || !$Array.isArray(values)))
+        ? $Array.from(values, map!)
+        : values as Array<any>
+
     const length = array.length
+
+    if (serial !== false) {
+        if (serial === true) {
+            serial = last
+        }
+
+        pair = serial
+        last = ',' + serial
+    }
 
     switch (length) {
         case 0:
@@ -29,76 +54,30 @@ function _conjoin<T> (
             return '' + array[0]
 
         case 2:
-            return array[0] + pairSep + array[1]
+            return '' + array[0] + pair + array[1]
 
         default:
             if (mutable) {
-                const last = array.pop()
-                return array.join(sep) + lastSep + last
+                $last = array.pop()
+                return array.join(sep) + last + $last
             } else {
-                return array.slice(0, -1).join(sep) + lastSep + array[length - 1]
+                return array.slice(0, -1).join(sep) + last + array[length - 1]
             }
     }
 }
 
-export function conjoin<T> (
-    iterable: Iterable<T>,
-    {
-        with: sep = ', ',
-        last = sep,
-        pair = last,
-        serial,
-        map
-    }: Options<T> = {}
-): string {
-    if (serial != null) {
-        pair = serial
-        last = ',' + serial
-    }
-
-    let array, mutable = true
-
-    if (map) {
-        array = arrayFrom(iterable, map)
-    } else if (isArray(iterable)) {
-        array = iterable
-        mutable = false
-    } else {
-        array = arrayFrom(iterable)
-    }
-
-    return _conjoin(array, sep, '' + pair, last, mutable)
-}
-
-export function conjoiner<T> (
-    {
-        with: sep = ', ',
-        last = sep,
-        pair = last,
-        serial,
-        map
-    }: Options<T> = {}
-) {
-    if (serial != null) {
-        pair = serial
-        last = ',' + serial
-    }
-
-    pair = '' + pair
-
-    if (map) {
-        return function conjoin (iterable: Iterable<T>) {
-            return _conjoin(arrayFrom(iterable, map), sep, pair, last, true)
-        }
-    }
-
-    return function conjoin (iterable: Iterable<T>) {
-        const [array, mutable] = isArray(iterable)
-            ? [iterable, false]
-            : [arrayFrom(iterable), true]
-
-        return _conjoin(array, sep, pair, last, mutable)
+const $conjoiner = function conjoiner ($options: Options = {}) {
+    return function conjoin (values: Joinable, options?: Options) {
+        return $conjoin(
+            values,
+            (options ? Object.assign({}, $options, options) : $options)
+        )
     }
 }
 
-export { conjoin as join, conjoiner as joiner }
+export {
+    $conjoin as conjoin,
+    $conjoin as join,
+    $conjoiner as conjoiner,
+    $conjoiner as joiner
+}
