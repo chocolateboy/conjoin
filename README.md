@@ -340,7 +340,7 @@ The following NPM scripts are available:
 
 # VERSION
 
-1.0.2
+2.0.0
 
 # AUTHOR
 
@@ -353,5 +353,5 @@ Copyright © 2020 by chocolateboy.
 This is free software; you can redistribute it and/or modify it under the
 terms of the [Artistic License 2.0](https://www.opensource.org/licenses/artistic-license-2.0.php).
 
-[jsDelivr]: https://cdn.jsdelivr.net/npm/@chocolatey/conjoin@1.0.2/dist/index.umd.min.js
-[unpkg]: https://unpkg.com/@chocolatey/conjoin@1.0.2/dist/index.umd.min.js
+[jsDelivr]: https://cdn.jsdelivr.net/npm/@chocolatey/conjoin@2.0.0/dist/index.umd.min.js
+[unpkg]: https://unpkg.com/@chocolatey/conjoin@2.0.0/dist/index.umd.min.js
