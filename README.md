@@ -21,6 +21,7 @@
   - [pair](#pair)
   - [serial](#serial)
   - [with](#with)
+  - [$map](#dollar-map)
 - [DEVELOPMENT](#development)
 - [COMPATIBILITY](#compatibility)
 - [SEE ALSO](#see-also)
@@ -40,7 +41,7 @@ conjoin - a fast and flexible joiner for iterables and arrays with a tiny footpr
 - custom default, pair, and last separators
 - currying (generate a function with baked-in options)
 - no dependencies
-- ~350 B minified + gzipped
+- &lt; 350 B minified + gzipped
 - fully typed (TypeScript)
 - CDN builds (UMD) - [jsDelivr][], [unpkg][]
 
@@ -87,14 +88,19 @@ conjoin(pair, { pair: '/' })     // "foo/bar"
 #### transform values
 
 ```javascript
-const map = (it, i) => `${it}(${i + 1})`
-join(array, { map }) // 'foo(1), bar(2), baz(3) and quux(4)"
+const map = (value, index) => JSON.stringify(value)
+const $map = JSON.stringify
+
+join(array, { map })  // '"foo", "bar", "baz", "quux"'
+join(array, { $map }) // '"foo", "bar", "baz", "quux"'
 ```
 
 #### currying
 
 ```javascript
-const join = conjoiner({ map: it.toUpperCase() })
+const map = it => it.toUpperCase()
+const join = conjoiner({ map })
+
 join(array)                    // "FOO, BAR, BAZ and QUUX"
 join(array, { last: ' AND ' }) // "FOO, BAR, BAZ AND QUUX"
 ```
@@ -103,6 +109,7 @@ join(array, { last: ' AND ' }) // "FOO, BAR, BAZ AND QUUX"
 
 ```javascript
 const join = conjoiner({ serial: ' or ' })
+
 join(pair)  // "foo or bar"
 join(array) // "foo, bar, baz, or quux"
 ```
@@ -135,14 +142,15 @@ while keeping the package size small.
 The following types are referenced in the descriptions below.
 
 ```typescript
-type Joinable = ArrayLike<any> | Iterable<any>;
+type Joinable<T> = ArrayLike<T> | Iterable<T>;
 
-type Options = {
+type Options<T> = {
     last?: string;
-    map?: ((value: any, index: number) => any) | boolean;
+    map?: (value: T, index: number) => any;
     pair?: string;
     serial?: string | boolean;
     with?: string;
+    $map?: (value: T) => any;
 };
 ```
 
@@ -150,7 +158,7 @@ type Options = {
 
 ## conjoin
 
-- **Type**: `(values: Joinable, options?: Options) ⇒ string`
+- **Type**: `(values: Joinable<T>, options?: Options<T>) ⇒ string`
 - **Alias**: `join`
 
 ```javascript
@@ -166,7 +174,9 @@ separators.
 
 ## conjoiner
 
-- **Type**: `(options?: Options) ⇒ ((values: Joinable, extend?: Options) ⇒ string)`
+- **Type**:
+    - `<U>(options?: Options<U>) ⇒ (values: Joinable<U>) ⇒ string`
+    - `<U>(options?: Options<U>) ⇒ <T>(values: Joinable<T>, options: Options<T>) ⇒ string`
 - **Alias**: `joiner`
 
 ```javascript
@@ -205,28 +215,24 @@ defined.
 
 ## map
 
-- **Type**: `((value: any, index: number) ⇒ any) | boolean`
-- **Default**: undefined
+- **Type**: `(value: T, index: number) => any`
+- **Default**: `undefined`
 
 ```javascript
-const map = (it, i) => String(it).repeat(i + 1)
-const stringify = it => JSON.stringify(it)
+const repeat = (it, i) => String(it).repeat(i + 1)
+const toInt = it => parseInt(it)
 
-join([1, 2, 3, 4], { map })     // "1, 22, 333 and 4444"
-join(array, { map: stringify }) // '"foo", "bar", "baz" and "quux"'
+join(['a', 'b', 'c', 'd'], { map: repeat })    // "a, bb, ccc, dddd"
+join(['1.', '2.', '3.', '4.'], { map: toInt }) // "1, 2, 3, 4"
 ```
 
 An optional function to transform each joined value. If supplied, the function
 is passed the value and its 0-based index within the array/iterable.
 
-Note that `JSON.stringify` needs to be wrapped to prevent the second argument
-to the map function (the index) being interpreted as a replacer. As a
-convenience, if the map value is `true`, this wrapper is used as the function,
-e.g.:
-
-```javascript
-join(array, { map: true }) // '"foo", "bar", "baz" and "quux"'
-```
+Note that functions like `parseInt` need to be wrapped to ensure the second
+argument passed to the map function (the index) isn't disallowed or
+[misinterpreted][parseInt]. Rather than wrapping these functions manually, they can be
+wrapped automatically via the [`$map`](#dollar-map) option.
 
 ## pair
 
@@ -254,7 +260,8 @@ Can be used in conjunction with `last` to produce lists in the
 - **Default**: `undefined`
 
 ```javascript
-join([1, 2, 3], { serial: ' or ' })                     // "1, 2, or 3"
+join(pair, { serial: ' or ' })                          // "foo or bar"
+join(array, { serial: ' or ' })                         // "foo, bar, baz, or quux"
 join(['eats', 'shoots', 'leaves'], { serial: ' and ' }) // "eats, shoots, and leaves"
 ```
 
@@ -268,6 +275,7 @@ and a `last` option of `","` + `<string>`, e.g.:
 
 ```javascript
 const join = joiner({ pair: ' or ', last: ', or ' })
+
 join(pair)  // "foo or bar"
 join(array) // "foo, bar, baz, or quux"
 ```
@@ -276,6 +284,7 @@ join(array) // "foo, bar, baz, or quux"
 
 ```javascript
 const join = joiner({ serial: ' or ' })
+
 join(pair)  // "foo or bar"
 join(array) // "foo, bar, baz, or quux"
 ```
@@ -285,10 +294,14 @@ As a convenience, if the value is true, it's assigned the value of the
 
 ```javascript
 const array = ['eats', 'shoots', 'leaves']
+
 conjoin(array)                   // "eats, shoots and leaves"
 conjoin(array, { serial: true }) // "eats, shoots, and leaves"
+```
 
+```javascript
 const join = joiner({ last: ' or ' })
+
 join(array)                      // "eats, shoots or leaves"
 join(array, { serial: true })    // "eats, shoots, or leaves"
 ```
@@ -299,13 +312,42 @@ join(array, { serial: true })    // "eats, shoots, or leaves"
 - **Default**: `", "`
 
 ```javascript
-join(pair, { with: '/' })       // "foo/bar"
+join(pair,   { with: '/' })     // "foo and bar"
 join(triple, { with: '/' })     // "foo/bar and baz"
 join(triple, { with: ' and ' }) // "foo and bar and baz"
 ```
 
 The default separator, used for all but the only ([pair](#pair)) and
 [last](#last) separators.
+
+## $map <a name="dollar-map"></a>
+
+- **Type**: `(value: T) => any`
+- **Default**: `undefined`
+
+```javascript
+const items = ['1.', '2)', '3:', '4/']
+
+join(items, { $map: parseInt })       // "1, 2, 3 and 4"
+join(array, { $map: JSON.stringify }) // '"foo", "bar", "baz" and "quux"'
+```
+
+An optional function to transform each joined value.
+
+This is the same as the [`map`](#map) option, but the function is automatically wrapped
+to ensure it's only passed a value rather than a value and its index. This is
+needed for functions that disallow or [misinterpret][parseInt] additional arguments
+such as `parseInt` and `JSON.stringify`.
+
+Assigning a function to `$map` is the same as assigning its wrapper to `map`, so
+the following are equivalent:
+
+```javascript
+const map = it => JSON.stringify(it)
+
+join(array, { map })                  // '"foo", "bar", "baz" and "quux"'
+join(array, { $map: JSON.stringify }) // '"foo", "bar", "baz" and "quux"'
+```
 
 # DEVELOPMENT
 
@@ -354,4 +396,5 @@ This is free software; you can redistribute it and/or modify it under the
 terms of the [Artistic License 2.0](https://www.opensource.org/licenses/artistic-license-2.0.php).
 
 [jsDelivr]: https://cdn.jsdelivr.net/npm/@chocolatey/conjoin@2.0.0/dist/index.umd.min.js
+[parseInt]: https://stackoverflow.com/q/262427
 [unpkg]: https://unpkg.com/@chocolatey/conjoin@2.0.0/dist/index.umd.min.js

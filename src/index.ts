@@ -1,37 +1,43 @@
-export type Joinable = ArrayLike<any> | Iterable<any>;
-export type Mapper = (value: any, index: number) => any;
+export type Joinable<T> = ArrayLike<T> | Iterable<T>;
+export type Mapper<T> = (value: T, index: number) => any;
+export type Wrappable<T> = (value: T) => any;
 
-export type Options = {
+export type Options<T> = {
     last?: string;
-    map?: Mapper | boolean;
+    map?: Mapper<T>;
     pair?: string;
     serial?: string | boolean;
     with?: string;
+    $map?: Wrappable<T>;
 };
 
 const $Array = Array
-const safeJsonStringify = (value: any) => JSON.stringify(value)
 
-const $conjoin = function conjoin (values: Joinable, options: Options = {}) {
+const $conjoin = function conjoin<T> (values: Joinable<T>, options: Options<T> = {}) {
     let {
         with: sep = ', ',
         last = ' and ',
+        map: _map,
         pair = last,
-        map: $map,
         serial = false,
+        $map
     } = options
 
     let $last, mutable
 
-    const map: Mapper | undefined = $map
-        ? ($map === true ? safeJsonStringify : $map)
-        : undefined
+    const map: Mapper<T> | undefined = $map
+        ? ((value: T) => $map!(value)) // [1]
+        : _map
 
-    // XXX TypeScript doesn't grok that Array.from's second argument can be
+    // [1] XXX "Cannot invoke an object which is possibly 'undefined'."
+    // expanding the ternary into an if/else statetement doesn't help
+
+    const array: Array<T> = (mutable = (map || !$Array.isArray(values)))
+        ? $Array.from(values, map!) // [2]
+        : values as Array<T>
+
+    // [2] XXX TypeScript doesn't grok that Array.from's second argument can be
     // undefined
-    const array: Array<any> = (mutable = (map || !$Array.isArray(values)))
-        ? $Array.from(values, map!)
-        : values as Array<any>
 
     const length = array.length
 
@@ -49,8 +55,6 @@ const $conjoin = function conjoin (values: Joinable, options: Options = {}) {
             return ''
 
         case 1:
-            // in my tests (Node.js v14), concatenation is about 20% faster than
-            // coercion via String(...). it also minifies better
             return '' + array[0]
 
         case 2:
@@ -66,13 +70,14 @@ const $conjoin = function conjoin (values: Joinable, options: Options = {}) {
     }
 }
 
-const $conjoiner = function conjoiner ($options: Options = {}) {
-    return function conjoin (values: Joinable, options?: Options) {
-        return $conjoin(
-            values,
-            (options ? Object.assign({}, $options, options) : $options)
-        )
+const $conjoiner = function conjoiner<U> ($options: Options<U> = {}) {
+    function conjoin<U> (values: Joinable<U>): string
+    function conjoin<T> (values: Joinable<T>, options: Options<T>): string
+    function conjoin (values: Joinable<any>, _options?: Options<any>) {
+        return $conjoin(values, _options ? Object.assign({}, $options, _options) : $options)
     }
+
+    return conjoin
 }
 
 export {

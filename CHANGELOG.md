@@ -1,3 +1,15 @@
+## 3.0.0 - TBD
+
+### Breaking Changes
+
+- remove support for the `{ map: true }` shortcut for `JSON.stringify`
+- reinstate collection types
+
+### Features
+
+- add a new `$map` option, an alternative to `map` which automatically wraps
+  the supplied function so that it only takes a single value
+
 ## 2.0.0 - TBD
 
 ### Breaking Changes

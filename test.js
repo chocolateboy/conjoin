@@ -6,11 +6,13 @@ const {
     join,
     conjoiner,
     joiner
-} = require(
-    '.'
-)
+} = require('.')
 
 const ARRAY = ['foo', 'bar', 'baz', 'quux']
+const EMPTY = []
+const SINGLE = ARRAY.slice(0, 1)
+const PAIR = ARRAY.slice(0, 2)
+const TRIPLE = ARRAY.slice(0, 3)
 
 function getArguments () {
     return arguments
@@ -66,35 +68,30 @@ test('default', t => {
 })
 
 test('empty', t => {
-    const array = []
-
-    t.isJoined(array, '')
-    t.isJoined(array, { with: ' - ' }, '')
-    t.isJoined(array, { last: ' or ' }, '')
-    t.isJoined(array, { pair: ' or ' }, '')
-    t.isJoined(array, { serial: ' or ' }, '')
+    t.isJoined(EMPTY, '')
+    t.isJoined(EMPTY, { last: ' or ' }, '')
+    t.isJoined(EMPTY, { pair: ' or ' }, '')
+    t.isJoined(EMPTY, { serial: ' or ' }, '')
+    t.isJoined(EMPTY, { with: ' - ' }, '')
 })
 
 test('single', t => {
-    const array = ['foo']
-
-    t.isJoined(array, 'foo')
-    t.isJoined(array, { with: ' - ' }, 'foo')
-    t.isJoined(array, { last: ' or ' }, 'foo')
-    t.isJoined(array, { pair: ' or ' }, 'foo')
-    t.isJoined(array, { serial: ' or ' }, 'foo')
+    t.isJoined(SINGLE, 'foo')
+    t.isJoined(SINGLE, { last: ' or ' }, 'foo')
+    t.isJoined(SINGLE, { pair: ' or ' }, 'foo')
+    t.isJoined(SINGLE, { serial: ' or ' }, 'foo')
+    t.isJoined(SINGLE, { with: ' - ' }, 'foo')
 })
 
 test('double', t => {
-    const array = ['foo', 'bar']
-
-    t.isJoined(array, 'foo and bar')
-    t.isJoined(array, { with: ' - ' }, 'foo and bar')
-    t.isJoined(array, { last: ' or ' }, 'foo or bar')
-    t.isJoined(array, { pair: ' or ' }, 'foo or bar')
-    t.isJoined(array, { serial: ' or ' }, 'foo or bar')
+    t.isJoined(PAIR, 'foo and bar')
+    t.isJoined(PAIR, { last: ' or ' }, 'foo or bar')
+    t.isJoined(PAIR, { pair: ' or ' }, 'foo or bar')
+    t.isJoined(PAIR, { serial: ' or ' }, 'foo or bar')
+    t.isJoined(PAIR, { with: ' - ' }, 'foo and bar')
 })
 
+// XXX symbol values aren't supported (they don't stringify via concatenation)
 test('non-string values', t => {
     let i = 0
 
@@ -111,21 +108,34 @@ test('non-string values', t => {
     t.isJoined(values, '/1/g, /2/g, /3/g and /4/g')
 })
 
+// XXX these are supported by the (transpiled) JavaScript, but not by
+// TypeScript, where we require string separators
 test('non-string separators', t => {
-    const sep = { toString: () => ' :: ' }
-    const pair = { toString: () => '/' }
-    const last = { toString: () => ' -> ' }
+    class Separator {
+        constructor (sep) {
+            this._sep = sep
+        }
 
+        toString () {
+            return this._sep
+        }
+    }
+
+    const sep = { toString: () => ' :: ' }
+    const pair = new Separator('/')
+    const last = new String(' -> ')
     const options = { with: sep, pair, last }
 
-    t.isJoined([], options, '')
-    t.isJoined(['foo'], options, 'foo')
-    t.isJoined(['foo', 'bar'], options, 'foo/bar')
-    t.isJoined(['foo', 'bar', 'baz'], options, 'foo :: bar -> baz')
-    t.isJoined(['foo', 'bar', 'baz', 'quux'], options, 'foo :: bar :: baz -> quux')
+    t.isJoined(EMPTY, options, '')
+    t.isJoined(SINGLE, options, 'foo')
+    t.isJoined(PAIR, options, 'foo/bar')
+    t.isJoined(TRIPLE, options, 'foo :: bar -> baz')
+    t.isJoined(ARRAY, options, 'foo :: bar :: baz -> quux')
 })
 
 test('array-likes', t => {
+    // `arguments` is actually iterable, but it's pretty much the canonical
+    // array-like so we want to confirm it works
     const args1 = getArguments(...ARRAY)
     t.isJoined(args1, 'foo, bar, baz and quux')
 
@@ -141,86 +151,70 @@ test('curried override', t => {
     t.is(join(ARRAY), 'foo | bar | baz or quux')
     t.is(join(ARRAY, { with: '/' }), 'foo/bar/baz or quux')
     t.is(join(ARRAY, { last: ' but not ' }), 'foo | bar | baz but not quux')
-    t.is(join(ARRAY, { map: true }), '"foo" | "bar" | "baz" or "quux"')
-    t.is(join(ARRAY, { map: false }), 'foo | bar | baz or quux')
     t.is(join(ARRAY, { serial: true }), 'foo | bar | baz, or quux')
     t.is(join(ARRAY, { serial: false }), 'foo | bar | baz or quux')
-    t.is(join(ARRAY, { map: true, serial: true }), '"foo" | "bar" | "baz", or "quux"')
-    t.is(join(ARRAY, { map: true, serial: false }), '"foo" | "bar" | "baz" or "quux"')
-    t.is(join(ARRAY, { map: false, serial: true }), 'foo | bar | baz, or quux')
-    t.is(join(ARRAY, { map: false, serial: false }), 'foo | bar | baz or quux')
 })
 
 test('oxford comma', t => {
     const or = { pair: ' or ', last: ', or ' }
     const and = { pair: ' & ', last: ', and ' }
 
-    t.isJoined([], or, '')
-    t.isJoined(['foo'], or, 'foo')
-    t.isJoined(['foo', 'bar'], or, 'foo or bar')
-    t.isJoined(['foo', 'bar', 'baz'], or, 'foo, bar, or baz')
+    t.isJoined(EMPTY, or, '')
+    t.isJoined(SINGLE, or, 'foo')
+    t.isJoined(PAIR, or, 'foo or bar')
+    t.isJoined(TRIPLE, or, 'foo, bar, or baz')
     t.isJoined(or, 'foo, bar, baz, or quux')
 
-    t.isJoined([], and, '')
-    t.isJoined(['foo'], and, 'foo')
-    t.isJoined(['foo', 'bar'], and, 'foo & bar')
-    t.isJoined(['foo', 'bar', 'baz'], and, 'foo, bar, and baz')
+    t.isJoined(EMPTY, and, '')
+    t.isJoined(SINGLE, and, 'foo')
+    t.isJoined(PAIR, and, 'foo & bar')
+    t.isJoined(TRIPLE, and, 'foo, bar, and baz')
     t.isJoined(and, 'foo, bar, baz, and quux')
 })
 
-test('option.last', t => {
+test('options.last', t => {
     t.isJoined({ last: '' }, 'foo, bar, bazquux')
     t.isJoined({ last: ', ' }, 'foo, bar, baz, quux')
     t.isJoined({ last: ' or ' }, 'foo, bar, baz or quux')
     t.isJoined({ last: ' and ' }, 'foo, bar, baz and quux')
 })
 
-test('option.map', t => {
-    let map = (value, index) => {
+test('options.map', t => {
+    const map = (value, index) => {
         t.is(index, ARRAY.indexOf(value))
         return value.toUpperCase()
     }
 
-    let options = { map }
+    const options = { map }
 
-    t.isJoined([], options, '')
-    t.isJoined(['foo'], options, 'FOO')
-    t.isJoined(['foo', 'bar'], options, 'FOO and BAR')
-    t.isJoined(['foo', 'bar', 'baz'], options, 'FOO, BAR and BAZ')
+    t.isJoined(EMPTY, options, '')
+    t.isJoined(SINGLE, options, 'FOO')
+    t.isJoined(PAIR, options, 'FOO and BAR')
+    t.isJoined(TRIPLE, options, 'FOO, BAR and BAZ')
     t.isJoined(options, 'FOO, BAR, BAZ and QUUX')
-
-    const manual = (value, index) => {
-        t.is(index, ARRAY.indexOf(value))
-        return JSON.stringify(value)
-    }
-
-    const auto = true
-
-    // confirm the examples in the README work
-    for (const map of [manual, auto]) {
-        options = { map, last: ' or ' }
-
-        t.isJoined([], options, '')
-        t.isJoined(['foo'], options, '"foo"')
-        t.isJoined(['foo', 'bar'], options, '"foo" or "bar"')
-        t.isJoined(['foo', 'bar', 'baz'], options, '"foo", "bar" or "baz"')
-        t.isJoined(options, '"foo", "bar", "baz" or "quux"')
-    }
 })
 
-test('option.pair', t => {
-    const array = ['foo' ,'bar']
+test('options.$map', t => {
+    const options = { $map: JSON.stringify }
 
-    t.isJoined(array, { pair: '' }, 'foobar')
-    t.isJoined(array, { pair: ', ' }, 'foo, bar')
-    t.isJoined(array, { pair: ' or ' }, 'foo or bar')
-    t.isJoined(array, { pair: ' or ', last: ' and not ' }, 'foo or bar')
+    t.isJoined(EMPTY, options, '')
+    t.isJoined(SINGLE, options, '"foo"')
+    t.isJoined(PAIR, options, '"foo" and "bar"')
+    t.isJoined(TRIPLE, options, '"foo", "bar" and "baz"')
+    t.isJoined(options, '"foo", "bar", "baz" and "quux"')
+})
+
+test('options.pair', t => {
+    t.isJoined(PAIR, { pair: '' }, 'foobar')
+    t.isJoined(PAIR, { pair: ', ' }, 'foo, bar')
+    t.isJoined(PAIR, { pair: ' or ' }, 'foo or bar')
+    t.isJoined(PAIR, { pair: ' or ', last: ' and not ' }, 'foo or bar')
 
     t.isJoined({ pair: '' }, 'foo, bar, baz and quux')
     t.isJoined({ pair: ' or ', last: ' and not ' }, 'foo, bar, baz and not quux')
 })
 
-test('option.serial', t => {
+test('options.serial', t => {
     const or = { serial: ' or ' }
     const and = { serial: ' and ' }
     const bool1 = { serial: true }
@@ -234,48 +228,48 @@ test('option.serial', t => {
     t.isJoined(array, { serial: true }, 'eats, shoots, and leaves')
 
     const join = conjoiner({ last: ' or ' })
-    t.is(join(['foo', 'bar']), 'foo or bar')
+    t.is(join(PAIR), 'foo or bar')
     t.is(join(array), 'eats, shoots or leaves')
     t.is(join(array, { serial: true }), 'eats, shoots, or leaves')
 
-    t.isJoined([], or, '')
-    t.isJoined(['foo'], or, 'foo')
-    t.isJoined(['foo', 'bar'], or, 'foo or bar')
-    t.isJoined(['foo', 'bar', 'baz'], or, 'foo, bar, or baz')
+    t.isJoined(EMPTY, or, '')
+    t.isJoined(SINGLE, or, 'foo')
+    t.isJoined(PAIR, or, 'foo or bar')
+    t.isJoined(TRIPLE, or, 'foo, bar, or baz')
     t.isJoined(or, 'foo, bar, baz, or quux')
 
-    t.isJoined([], and, '')
-    t.isJoined(['foo'], and, 'foo')
-    t.isJoined(['foo', 'bar'], and, 'foo and bar')
-    t.isJoined(['foo', 'bar', 'baz'], and, 'foo, bar, and baz')
+    t.isJoined(EMPTY, and, '')
+    t.isJoined(SINGLE, and, 'foo')
+    t.isJoined(PAIR, and, 'foo and bar')
+    t.isJoined(TRIPLE, and, 'foo, bar, and baz')
     t.isJoined(and, 'foo, bar, baz, and quux')
 
-    t.isJoined([], bool1, '')
-    t.isJoined(['foo'], bool1, 'foo')
-    t.isJoined(['foo', 'bar'], bool1, 'foo and bar')
-    t.isJoined(['foo', 'bar', 'baz'], bool1, 'foo, bar, and baz')
-    t.isJoined(['foo', 'bar', 'baz', 'quux'], bool1, 'foo, bar, baz, and quux')
+    t.isJoined(EMPTY, bool1, '')
+    t.isJoined(SINGLE, bool1, 'foo')
+    t.isJoined(PAIR, bool1, 'foo and bar')
+    t.isJoined(TRIPLE, bool1, 'foo, bar, and baz')
+    t.isJoined(ARRAY, bool1, 'foo, bar, baz, and quux')
 
-    t.isJoined([], bool2, '')
-    t.isJoined(['foo'], bool2, 'foo')
-    t.isJoined(['foo', 'bar'], bool2, 'foo or bar')
-    t.isJoined(['foo', 'bar', 'baz'], bool2, 'foo, bar, or baz')
-    t.isJoined(['foo', 'bar', 'baz', 'quux'], bool2, 'foo, bar, baz, or quux')
+    t.isJoined(EMPTY, bool2, '')
+    t.isJoined(SINGLE, bool2, 'foo')
+    t.isJoined(PAIR, bool2, 'foo or bar')
+    t.isJoined(TRIPLE, bool2, 'foo, bar, or baz')
+    t.isJoined(ARRAY, bool2, 'foo, bar, baz, or quux')
 
-    t.isJoined([], bool3, '')
-    t.isJoined(['foo'], bool3, 'foo')
-    t.isJoined(['foo', 'bar'], bool3, 'foo and bar')
-    t.isJoined(['foo', 'bar', 'baz'], bool3, 'foo, bar and baz')
-    t.isJoined(['foo', 'bar', 'baz', 'quux'], bool3, 'foo, bar, baz and quux')
+    t.isJoined(EMPTY, bool3, '')
+    t.isJoined(SINGLE, bool3, 'foo')
+    t.isJoined(PAIR, bool3, 'foo and bar')
+    t.isJoined(TRIPLE, bool3, 'foo, bar and baz')
+    t.isJoined(ARRAY, bool3, 'foo, bar, baz and quux')
 
-    t.isJoined([], bool4, '')
-    t.isJoined(['foo'], bool4, 'foo')
-    t.isJoined(['foo', 'bar'], bool4, 'foo or bar')
-    t.isJoined(['foo', 'bar', 'baz'], bool4, 'foo, bar or baz')
-    t.isJoined(['foo', 'bar', 'baz', 'quux'], bool4, 'foo, bar, baz or quux')
+    t.isJoined(EMPTY, bool4, '')
+    t.isJoined(SINGLE, bool4, 'foo')
+    t.isJoined(PAIR, bool4, 'foo or bar')
+    t.isJoined(TRIPLE, bool4, 'foo, bar or baz')
+    t.isJoined(ARRAY, bool4, 'foo, bar, baz or quux')
 })
 
-test('option.with', t => {
+test('options.with', t => {
     const separator = { toString () { return ' / ' } }
 
     t.isJoined({ with: '; ' }, 'foo; bar; baz and quux')

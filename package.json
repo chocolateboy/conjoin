@@ -12,8 +12,10 @@
     "types": "dist/index.d.ts",
     "scripts": {
         "build": "bili --map --format cjs -d dist src/index.ts",
+        "build:main": "cross-env NODE_ENV=production bili --no-map --format cjs,esm -d dist src/index.ts",
         "build:min": "cross-env NODE_ENV=production bili --config ./minify.config.js --no-map --format esm-min -d dist src/index.ts",
-        "build:release": "cross-env NODE_ENV=production bili --module-name Conjoin --no-map --format cjs,esm,umd-min -d dist src/index.ts",
+        "build:release": "run-s build:main build:umd",
+        "build:umd": "cross-env NODE_ENV=production bili --config ./minify.config.js --module-name Conjoin --no-map --format umd-min -d dist src/index.ts",
         "clean": "shx rm -rf dist",
         "doctoc": "markdown-toc --bullets=- --maxdepth 3 -i README.md",
         "prepublishOnly": "run-s clean typecheck build:release test:run",
