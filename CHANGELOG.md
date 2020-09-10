@@ -10,6 +10,10 @@
 - add a new `$map` option, an alternative to `map` which automatically wraps
   the supplied function so that it only takes a single value
 
+### Fixes
+
+- fix pkg.module filename: index.es.js -> index.esm.js
+
 ## 2.0.0 - TBD
 
 ### Breaking Changes

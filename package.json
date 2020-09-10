@@ -6,7 +6,7 @@
     "repository": "https://github.com/chocolateboy/conjoin",
     "license": "Artistic-2.0",
     "main": "dist/index.js",
-    "module": "dist/index.es.js",
+    "module": "dist/index.esm.js",
     "unpkg": "dist/index.umd.min.js",
     "jsdelivr": "dist/index.umd.min.js",
     "types": "dist/index.d.ts",
