@@ -91,8 +91,8 @@ conjoin(pair, { pair: '/' })     // "foo/bar"
 const map = (value, index) => JSON.stringify(value)
 const $map = JSON.stringify
 
-join(array, { map })  // '"foo", "bar", "baz", "quux"'
-join(array, { $map }) // '"foo", "bar", "baz", "quux"'
+join(array, { map })  // '"foo", "bar", "baz" and "quux"'
+join(array, { $map }) // '"foo", "bar", "baz" and "quux"'
 ```
 
 #### currying
@@ -222,8 +222,8 @@ defined.
 const repeat = (it, i) => String(it).repeat(i + 1)
 const toInt = it => parseInt(it)
 
-join(['a', 'b', 'c', 'd'], { map: repeat })    // "a, bb, ccc, dddd"
-join(['1.', '2.', '3.', '4.'], { map: toInt }) // "1, 2, 3, 4"
+join(['a', 'b', 'c', 'd'], { map: repeat })    // "a, bb, ccc and dddd"
+join(['1.', '2.', '3.', '4.'], { map: toInt }) // "1, 2, 3 and 4"
 ```
 
 An optional function to transform each joined value. If supplied, the function
