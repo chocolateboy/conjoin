@@ -1,4 +1,4 @@
-## 3.0.1 - TBD
+## 3.0.1 - 2020-09-10
 
 - documentation fix
 
