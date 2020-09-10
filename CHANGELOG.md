@@ -1,4 +1,4 @@
-## 3.0.0 - TBD
+## 3.0.0 - 2020-09-10
 
 ### Breaking Changes
 
@@ -14,7 +14,7 @@
 
 - fix pkg.module filename: index.es.js -> index.esm.js
 
-## 2.0.0 - TBD
+## 2.0.0 - 2020-09-04
 
 ### Breaking Changes
 

@@ -1,6 +1,6 @@
 {
     "name": "@chocolatey/conjoin",
-    "version": "2.0.0",
+    "version": "3.0.0",
     "description": "A fast and flexible joiner for iterables and arrays with a tiny footprint",
     "author": "chocolateboy",
     "repository": "https://github.com/chocolateboy/conjoin",
