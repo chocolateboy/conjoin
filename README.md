@@ -336,7 +336,7 @@ An optional function to transform each joined value.
 
 This is the same as the [`map`](#map) option, but the function is automatically wrapped
 to ensure it's only passed a value rather than a value and its index. This is
-needed for functions that disallow or [misinterpret][parseInt] additional arguments
+needed for functions which disallow or [misinterpret][parseInt] additional arguments
 such as `parseInt` and `JSON.stringify`.
 
 Assigning a function to `$map` is the same as assigning its wrapper to `map`, so

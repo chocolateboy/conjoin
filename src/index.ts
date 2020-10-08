@@ -30,7 +30,7 @@ const $conjoin = function conjoin<T> (values: Joinable<T>, options: Options<T> =
         : _map
 
     // [1] XXX "Cannot invoke an object which is possibly 'undefined'."
-    // expanding the ternary into an if/else statetement doesn't help
+    // expanding the ternary into an if/else statement doesn't help
 
     const array: Array<T> = (mutable = (map || !$Array.isArray(values)))
         ? $Array.from(values, map!) // [2]
