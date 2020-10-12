@@ -12,10 +12,11 @@
     "types": "dist/index.d.ts",
     "scripts": {
         "build": "bili --map --format cjs -d dist src/index.ts",
-        "build:main": "cross-env NODE_ENV=production bili --no-map --format cjs,esm -d dist src/index.ts",
-        "build:min": "cross-env NODE_ENV=production bili --config ./minify.config.js --no-map --format esm-min -d dist src/index.ts",
-        "build:release": "run-s build:main build:umd",
-        "build:umd": "cross-env NODE_ENV=production bili --config ./minify.config.js --module-name Conjoin --no-map --format umd-min -d dist src/index.ts",
+        "build:default": "cross-env NODE_ENV=production bili --no-map --format cjs,esm -d dist src/index.ts",
+        "build:doc": "toc-md --max-depth 3 README.md",
+        "build:min": "cross-env NODE_ENV=production bili --config ./resources/minify.config.js --no-map --format esm-min -d dist src/index.ts",
+        "build:release": "run-s typecheck build:default build:umd build:doc",
+        "build:umd": "cross-env NODE_ENV=production bili --config ./resources/minify.config.js --module-name Conjoin --no-map --format umd-min -d dist src/index.ts",
         "clean": "shx rm -rf dist",
         "doctoc": "markdown-toc --bullets=- --maxdepth 3 -i README.md",
         "prepublishOnly": "run-s clean typecheck build:release test:run",
@@ -25,10 +26,10 @@
         "typecheck": "tsc --noEmit --noImplicitAny --noUnusedLocals --noUnusedParameters --strict"
     },
     "files": [
-        "dist/index.d.ts",
         "dist/index.esm.js",
         "dist/index.js",
-        "dist/index.umd.min.js"
+        "dist/index.umd.min.js",
+        "/index.d.ts"
     ],
     "browserslist": "maintained node versions",
     "devDependencies": {
@@ -41,13 +42,17 @@
         "npm-run-all": "^4.1.5",
         "rollup-plugin-typescript2": "^0.27.2",
         "shx": "^0.3.2",
+        "toc-md-alt": "^0.4.1",
         "typescript": "^4.0.2"
     },
     "keywords": [
         "array",
+        "arraylike",
         "array-join",
+        "array-like",
         "conjoin",
         "curried",
+        "curry",
         "iterable",
         "join",
         "joiner",

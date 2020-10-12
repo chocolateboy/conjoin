@@ -3,7 +3,7 @@
 [![Build Status](https://travis-ci.org/chocolateboy/conjoin.svg)](https://travis-ci.org/chocolateboy/conjoin)
 [![NPM Version](https://img.shields.io/npm/v/@chocolatey/conjoin.svg)](https://www.npmjs.org/package/@chocolatey/conjoin)
 
-<!-- toc -->
+<!-- TOC -->
 
 - [NAME](#name)
 - [FEATURES](#features)
@@ -29,7 +29,7 @@
 - [AUTHOR](#author)
 - [COPYRIGHT AND LICENSE](#copyright-and-license)
 
-<!-- tocstop -->
+<!-- TOC END -->
 
 # NAME
 
@@ -156,6 +156,7 @@ type Options<T> = {
 
 # EXPORTS
 
+<a name="conjoin-1"></a>
 ## conjoin
 
 - **Type**: `(values: Joinable<T>, options?: Options<T>) ⇒ string`
@@ -320,7 +321,8 @@ join(triple, { with: ' and ' }) // "foo and bar and baz"
 The default separator, used for all but the only ([pair](#pair)) and
 [last](#last) separators.
 
-## $map <a name="dollar-map"></a>
+<a name="dollar-map"></a>
+## $map
 
 - **Type**: `(value: T) => any`
 - **Default**: `undefined`
@@ -349,10 +351,13 @@ join(array, { map })                  // '"foo", "bar", "baz" and "quux"'
 join(array, { $map: JSON.stringify }) // '"foo", "bar", "baz" and "quux"'
 ```
 
+If both `$map` and `map` are defined, `$map` takes precedence.
+
 # DEVELOPMENT
 
 <details>
 
+<!-- TOC:ignore -->
 ## NPM Scripts
 
 The following NPM scripts are available:
