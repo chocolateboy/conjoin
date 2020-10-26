@@ -363,9 +363,9 @@ If both `$map` and `map` are defined, `$map` takes precedence.
 The following NPM scripts are available:
 
 - build - compile the library for testing and save to the target directory
+- build:doc - generate the README's TOC (table of contents)
 - build:release - compile the library for release and save to the target directory
 - clean - remove the target directory and its contents
-- doctoc - generate the README's TOC (table of contents)
 - rebuild - clean the target directory and recompile the library
 - test - recompile the library and run the test suite
 - test:run - run the test suite
