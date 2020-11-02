@@ -1,5 +1,6 @@
 ## 3.0.1 - 2020-09-10
 
+- narrow types
 - documentation fix
 
 ## 3.0.0 - 2020-09-10
