@@ -1,19 +1,16 @@
-export type Joinable<T> = ArrayLike<T> | Iterable<T>;
-export type Mapper<T> = (value: T, index: number) => any;
-export type Wrappable<T> = (value: T) => any;
+import {
+    Joinable,
+    Mapper,
+    Options,
+    OptionsWithDollarMap,
+    OptionsWithMap
+} from '../index.d'
 
-export type Options<T> = {
-    last?: string;
-    map?: Mapper<T>;
-    pair?: string;
-    serial?: string | boolean;
-    with?: string;
-    $map?: Wrappable<T>;
-};
+type InternalOptions<T> = Partial<OptionsWithDollarMap<T> & OptionsWithMap<T>>;
 
-const $Array = Array
+const { from: arrayFrom, isArray } = Array
 
-const $conjoin = function conjoin<T> (values: Joinable<T>, options: Options<T> = {}) {
+const conjoin = <T>(values: Joinable<T>, options: InternalOptions<T> = {}) => {
     let {
         with: sep = ', ',
         last = ' and ',
@@ -23,17 +20,17 @@ const $conjoin = function conjoin<T> (values: Joinable<T>, options: Options<T> =
         $map
     } = options
 
-    let $last, mutable
+    let $last: T | undefined, mutable: boolean
 
     const map: Mapper<T> | undefined = $map
-        ? ((value: T) => $map!(value)) // [1]
+        ? (value: T) => $map!(value) // [1]
         : _map
 
     // [1] XXX "Cannot invoke an object which is possibly 'undefined'."
     // expanding the ternary into an if/else statement doesn't help
 
-    const array: Array<T> = (mutable = (map || !$Array.isArray(values)))
-        ? $Array.from(values, map!) // [2]
+    const array: Array<T> = (mutable = (map || !isArray(values)) as boolean)
+        ? arrayFrom(values, map!) // [2]
         : values as Array<T>
 
     // [2] XXX TypeScript doesn't grok that Array.from's second argument can be
@@ -70,19 +67,12 @@ const $conjoin = function conjoin<T> (values: Joinable<T>, options: Options<T> =
     }
 }
 
-const $conjoiner = function conjoiner<U> ($options: Options<U> = {}) {
-    function conjoin<U> (values: Joinable<U>): string
-    function conjoin<T> (values: Joinable<T>, options: Options<T>): string
-    function conjoin (values: Joinable<any>, _options?: Options<any>) {
-        return $conjoin(values, _options ? Object.assign({}, $options, _options) : $options)
+// the types here are just placeholders: the full/correct types are in the
+// declaration file
+const conjoiner = ($options: Options<unknown> = {}) => {
+    return (values: Joinable<unknown>, _options?: Options<unknown>) => {
+        return conjoin(values, _options ? Object.assign({}, $options, _options) : $options)
     }
-
-    return conjoin
 }
 
-export {
-    $conjoin as conjoin,
-    $conjoin as join,
-    $conjoiner as conjoiner,
-    $conjoiner as joiner
-}
+export { conjoin, conjoiner, conjoin as join, conjoiner as joiner }

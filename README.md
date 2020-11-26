@@ -176,8 +176,8 @@ separators.
 ## conjoiner
 
 - **Type**:
-    - `<U>(options?: Options<U>) ⇒ (values: Joinable<U>) ⇒ string`
     - `<U>(options?: Options<U>) ⇒ <T>(values: Joinable<T>, options: Options<T>) ⇒ string`
+    - `<U>(options?: Options<U>) ⇒ (values: Joinable<U>) ⇒ string`
 - **Alias**: `joiner`
 
 ```javascript

@@ -1,3 +1,9 @@
+## 3.1.0 - TBD
+
+- improve type constraints: disallow the (shadowed) `map` option when `$map` is defined
+- documentation fixes
+- update dependencies
+
 ## 3.0.1 - 2020-09-10
 
 - narrow types

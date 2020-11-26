@@ -1,12 +1,6 @@
-const test           = require('ava')
-const { Assertions } = require('ava/lib/assert.js')
-
-const {
-    conjoin,
-    join,
-    conjoiner,
-    joiner
-} = require('.')
+const test                                 = require('ava')
+const { Assertions }                       = require('ava/lib/assert.js')
+const { conjoin, join, conjoiner, joiner } = require('.')
 
 const ARRAY = ['foo', 'bar', 'baz', 'quux']
 const EMPTY = []

@@ -4,7 +4,7 @@
         "alwaysStrict": true,
         "baseUrl": "./",
         "declarationMap": false,
-        "declaration": true,
+        "declaration": false,
         "downlevelIteration": true,
         "esModuleInterop": true,
         "experimentalDecorators": true,
