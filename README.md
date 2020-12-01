@@ -367,6 +367,7 @@ The following NPM scripts are available:
 - build:release - compile the library for release and save to the target directory
 - clean - remove the target directory and its contents
 - rebuild - clean the target directory and recompile the library
+- repl - launch a node REPL with the library loaded
 - test - recompile the library and run the test suite
 - test:run - run the test suite
 - typecheck - sanity check the library's type definitions

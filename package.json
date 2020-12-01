@@ -20,6 +20,7 @@
         "clean": "shx rm -rf dist",
         "prepublishOnly": "run-s clean typecheck build:release test:types test:run",
         "rebuild": "run-s clean build",
+        "repl": "node -r ./resources/repl.js",
         "test": "run-s typecheck build test:types test:run",
         "test:run": "ava --verbose ./test.js",
         "test:types": "tsd",
