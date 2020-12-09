@@ -1,6 +1,6 @@
 # conjoin
 
-[![Build Status](https://travis-ci.org/chocolateboy/conjoin.svg)](https://travis-ci.org/chocolateboy/conjoin)
+[![Build Status](https://github.com/chocolateboy/conjoin/workflows/test/badge.svg)](https://github.com/chocolateboy/conjoin/actions?query=workflow%3Atest)
 [![NPM Version](https://img.shields.io/npm/v/@chocolatey/conjoin.svg)](https://www.npmjs.org/package/@chocolatey/conjoin)
 
 <!-- TOC -->
