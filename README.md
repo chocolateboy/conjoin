@@ -91,8 +91,8 @@ conjoin(pair, { pair: '/' })     // "foo/bar"
 const map = (value, index) => JSON.stringify(value)
 const $map = JSON.stringify
 
-join(array, { map })  // '"foo", "bar", "baz" and "quux"'
-join(array, { $map }) // '"foo", "bar", "baz" and "quux"'
+conjoin(array, { map })  // '"foo", "bar", "baz" and "quux"'
+conjoin(array, { $map }) // '"foo", "bar", "baz" and "quux"'
 ```
 
 #### currying
