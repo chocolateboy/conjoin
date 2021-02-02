@@ -57,6 +57,7 @@ $ npm install @chocolatey/conjoin
 import { conjoin, conjoiner } from '@chocolatey/conjoin'
 
 const array = ['foo', 'bar', 'baz', 'quux']
+const arrayLike = { length: 4, ...array }
 const iterable = new Set(array)
 const single = array.slice(0, 1)
 const pair = array.slice(0, 2)
@@ -66,8 +67,6 @@ const triple = array.slice(0, 3)
 #### works with iterables, arrays, and array-likes
 
 ```javascript
-const arrayLike = { length: 4, ...array }
-
 conjoin([])        // ""
 conjoin(single)    // "foo"
 conjoin(pair)      // "foo and bar"
